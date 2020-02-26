@@ -1,9 +1,10 @@
-package card;
+package card.deck;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import card.Card;
 import card.enums.Rank;
 import card.enums.Suit;
 
@@ -51,11 +52,22 @@ public class DeckOfCards {
 		Collections.shuffle(this.cards);
 	}
 
-	// return card drawn from deck, remove it from the deck. 0-based index
-	public final Card draw(final int cardNumber) throws IndexOutOfBoundsException {
-		final Card drawnCard = this.cards.get(cardNumber);
-		this.cards.remove(cardNumber);
+	// return card drawn and remove it from the deck.
+	public final Card draw(final int index) throws IndexOutOfBoundsException {
+		return this.cards.remove(index);
+	}
 
-		return drawnCard;
+	// return cards drawn and remove them from the deck.
+	public final ArrayList<Card> drawMany(final int startingIndex,
+			final int numberOFCards) throws IndexOutOfBoundsException {
+		final ArrayList<Card> cardsDrawn = new ArrayList<Card>();
+
+		for (int i = startingIndex; i < (startingIndex + numberOFCards); i++) {
+			cardsDrawn.add(this.cards.get(i));
+		}
+		
+		this.cards.removeAll(cardsDrawn);
+
+		return cardsDrawn;
 	}
 }

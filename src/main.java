@@ -1,6 +1,8 @@
+import java.util.ArrayList;
+
 import card.Card;
-import card.DeckOfCards;
-import card.StandardDeckOfCards;
+import card.deck.DeckOfCards;
+import card.deck.StandardDeckOfCards;
 
 public class main {
 
@@ -18,10 +20,12 @@ public class main {
 
 		printDeckSize(deckOfCards);
 
-		System.out.println("drawing card...");
-		Card card = deckOfCards.draw(0);
+		System.out.println("drawing cards...");
+		ArrayList<Card> drawnCards = deckOfCards.drawMany(0, 5);
 
-		printCard(card);
+		for (Card card : drawnCards) {
+			printCard(card);
+		}
 
 		printDeckSize(deckOfCards);
 	}

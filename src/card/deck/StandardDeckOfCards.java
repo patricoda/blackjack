@@ -1,4 +1,4 @@
-package card;
+package card.deck;
 
 import card.enums.Rank;
 import card.enums.Suit;
