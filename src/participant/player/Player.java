@@ -1,4 +1,4 @@
-package player;
+package participant.player;
 
 import card.hand.Hand;
 
