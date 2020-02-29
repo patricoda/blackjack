@@ -3,7 +3,6 @@ package game;
 import java.util.ArrayList;
 import java.util.List;
 
-import card.Card;
 import card.deck.StandardDeckOfCards;
 import card.hand.Hand;
 
@@ -12,19 +11,11 @@ import participant.player.Player;
 
 public class BlackjackGame {
 	private final Dealer dealer;
-	private ArrayList<Player> players;
+	private final List<Player> players = new ArrayList<Player>();
 
 	public BlackjackGame() {
 		this.dealer = new Dealer(new StandardDeckOfCards());
-	}
-
-	public BlackjackGame(ArrayList<Player> players) {
-		this.dealer = new Dealer(new StandardDeckOfCards());
-		this.players = players;
-	}
-
-	public void setPlayers(final ArrayList<Player> players) {
-		this.players = players;
+		this.dealer.shuffle();
 	}
 
 	public void addPlayer(final Player player) {
@@ -32,16 +23,30 @@ public class BlackjackGame {
 	}
 
 	public void start() {
+		addPlayers();
+		dealCards();
+
+		printParticipantValues();
+	}
+
+	private void addPlayers() {
+		addPlayer(new Player("Paddy"));
+	}
+
+	private void dealCards() {
 		this.dealer.setHand(new Hand(this.dealer.deal(2)));
 
 		for (Player player : this.players) {
 			player.setHand(new Hand(this.dealer.deal(2)));
 		}
-		
-		System.out.println("dealer has " + calculateHandValue(this.dealer.getHand().getCards()));
 	}
-	
-	private int calculateHandValue(List<Card> list) {
-		return 0;
+
+	private void printParticipantValues() {
+		System.out.println("Dealer has " + dealer.getHand().getHandValue());
+
+		for (Player player : this.players) {
+			System.out.println(player.getName() + " has "
+					+ player.getHand().getHandValue());
+		}
 	}
 }

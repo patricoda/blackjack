@@ -1,10 +1,9 @@
 package participant.player;
 
-import card.hand.Hand;
+import participant.Participant;
 
-public class Player {
+public class Player extends Participant {
 	private final String name;
-	private Hand hand;
 
 	public Player(final String name) {
 		this.name = name;
@@ -12,13 +11,5 @@ public class Player {
 
 	public String getName() {
 		return name;
-	}
-
-	public Hand getHand() {
-		return hand;
-	}
-
-	public void setHand(final Hand hand) {
-		this.hand = hand;
 	}
 }
