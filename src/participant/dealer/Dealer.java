@@ -11,6 +11,7 @@ public class Dealer  extends Participant {
 	private final DeckOfCards deckOfCards;
 
 	public Dealer(final DeckOfCards deckOfCards) {
+		this.setName("Dealer");
 		this.deckOfCards = deckOfCards;
 	}
 
