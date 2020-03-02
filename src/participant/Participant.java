@@ -25,4 +25,10 @@ public class Participant {
 	public void setHand(final Hand hand) {
 		this.hand = hand;
 	}
+	
+	public int getHandValue() {
+		return hand.getHandValue();
+	}
+	
+	
 }
