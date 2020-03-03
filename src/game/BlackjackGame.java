@@ -34,8 +34,37 @@ public class BlackjackGame {
 	}
 
 	private void addPlayers() {
-		//TODO: allow addition of players
-		addPlayer(new Player("Paddy"));
+		boolean addingPlayers = true;
+
+		do {
+			System.out.println("Add a player (1), or continue (2)");
+			if (scanner.hasNext("1") || scanner.hasNext("2")) {
+				int action = scanner.nextInt();
+				switch (action) {
+				case 1:
+					System.out.println("Enter player name:");
+					scanner.nextLine();
+					
+					if (scanner.hasNextLine()) {
+						Player newPlayer = new Player(scanner.nextLine());
+						addPlayer(newPlayer);
+					}
+					
+					break;
+				case 2:
+					if (this.players.isEmpty()) {
+						System.out.println("Please enter at least one player");
+						scanner.nextLine();
+					} else {
+						addingPlayers = false;
+					}
+					break;
+				}
+			} else {
+				System.out.println("Invalid operation");
+				scanner.nextLine();
+			}
+		} while (addingPlayers);
 	}
 
 	private void dealCards() {
@@ -47,7 +76,7 @@ public class BlackjackGame {
 	}
 
 	private void printParticipantValues() {
-		System.out.println("Dealer has " + dealer.getHandValue());
+		System.out.println("\nDealer has " + dealer.getHandValue());
 
 		for (Player player : this.players) {
 			System.out.println(player.getName() + " has "
@@ -57,11 +86,11 @@ public class BlackjackGame {
 
 	private void initGameLoop() {
 		boolean gameInProgress = true;
-		
+
 		do {
 			dealCards();
 			printParticipantValues();
-			
+
 			for (Player player : this.players) {
 				playerTurn(player);
 			}
@@ -71,10 +100,10 @@ public class BlackjackGame {
 			for (Player player : players) {
 				determineWinner(player);
 			}
-			
+
 			resetCards();
 		} while (gameInProgress);
-		
+
 		scanner.close();
 	}
 
@@ -109,9 +138,9 @@ public class BlackjackGame {
 				if (player.getHandValue() > 21) {
 					playerTurn = false;
 				}
-				
+
 			} else {
-				System.out.println("invalid operation");
+				System.out.println("Invalid operation");
 				scanner.next();
 			}
 		} while (playerTurn);
@@ -156,27 +185,27 @@ public class BlackjackGame {
 			System.out.println(player.getName() + " loses!");
 		}
 	}
-	
+
 	private void resetCards() {
 		this.dealer.getHand().discardAll();
-		
-		for(Player player: players) {
+
+		for (Player player : players) {
 			player.getHand().discardAll();
 		}
-		
+
 		this.dealer.setDeckOfCards(new StandardDeckOfCards());
 		this.dealer.shuffle();
 	}
 
 	private void dealCard(Participant participant) {
 		Card newCard = this.dealer.dealCard();
-		
+
 		System.out.println("dealer deals " + participant.getName()
 				+ " a new card");
-		
-		System.out.println("new card is " + newCard.getRank()
-				+ " of " + newCard.getSuit() + "s");
-		
+
+		System.out.println("new card is " + newCard.getRank() + " of "
+				+ newCard.getSuit() + "s");
+
 		participant.getHand().addCard(newCard);
 	}
 }
