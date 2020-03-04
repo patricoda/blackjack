@@ -44,12 +44,12 @@ public class BlackjackGame {
 				case 1:
 					System.out.println("Enter player name:");
 					scanner.nextLine();
-					
+
 					if (scanner.hasNextLine()) {
 						Player newPlayer = new Player(scanner.nextLine());
 						addPlayer(newPlayer);
 					}
-					
+
 					break;
 				case 2:
 					if (this.players.isEmpty()) {
@@ -88,23 +88,46 @@ public class BlackjackGame {
 		boolean gameInProgress = true;
 
 		do {
-			dealCards();
-			printParticipantValues();
+			System.out.println("new game (1) or exit (2)?");
 
-			for (Player player : this.players) {
-				playerTurn(player);
+			if (scanner.hasNext("1") || scanner.hasNext("2")) {
+				int action = scanner.nextInt();
+
+				switch (action) {
+				case 1:
+					gameLoop();
+					break;
+				case 2:
+					gameInProgress = false;
+					break;
+				}
+			} else {
+				System.out.println("Invalid operation");
+				scanner.next();
 			}
+			;
 
-			dealerTurn();
-
-			for (Player player : players) {
-				determineWinner(player);
-			}
-
-			resetCards();
 		} while (gameInProgress);
 
+		System.out.println("Bye :)");
 		scanner.close();
+	}
+
+	private void gameLoop() {
+		dealCards();
+		printParticipantValues();
+
+		for (Player player : this.players) {
+			playerTurn(player);
+		}
+
+		dealerTurn();
+
+		for (Player player : players) {
+			determineWinner(player);
+		}
+
+		resetCards();
 	}
 
 	private void playerTurn(final Player player) {
