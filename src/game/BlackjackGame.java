@@ -23,11 +23,6 @@ public class BlackjackGame {
 		this.dealer.shuffle();
 	}
 
-	public void addPlayer(final Player player) {
-		player.setHand(new Hand());
-		this.players.add(player);
-	}
-
 	public void start() {
 		addPlayers();
 		initGameLoop();
@@ -47,9 +42,8 @@ public class BlackjackGame {
 
 					if (scanner.hasNextLine()) {
 						Player newPlayer = new Player(scanner.nextLine());
-						addPlayer(newPlayer);
+						this.players.add(newPlayer);
 					}
-
 					break;
 				case 2:
 					if (this.players.isEmpty()) {
@@ -95,7 +89,7 @@ public class BlackjackGame {
 
 				switch (action) {
 				case 1:
-					gameLoop();
+					initRound();
 					break;
 				case 2:
 					gameInProgress = false;
@@ -105,7 +99,6 @@ public class BlackjackGame {
 				System.out.println("Invalid operation");
 				scanner.next();
 			}
-			;
 
 		} while (gameInProgress);
 
@@ -113,7 +106,7 @@ public class BlackjackGame {
 		scanner.close();
 	}
 
-	private void gameLoop() {
+	private void initRound() {
 		dealCards();
 		printParticipantValues();
 
@@ -121,6 +114,7 @@ public class BlackjackGame {
 			playerTurn(player);
 		}
 
+		//change to ensure if all player's are bust, dealer doesn't have turn, auto-wins?
 		dealerTurn();
 
 		for (Player player : players) {
@@ -132,7 +126,7 @@ public class BlackjackGame {
 
 	private void playerTurn(final Player player) {
 		// TODO need to create a standard input output class
-		System.out.println("\n" + player.getName() + ":");
+		System.out.println("\n" + player.getName() + "'s turn...");
 		boolean playerTurn = true;
 
 		do {
@@ -149,52 +143,68 @@ public class BlackjackGame {
 				switch (action) {
 				case 1:
 					dealCard(player);
+					System.out.println(player.getName()
+							+ "'s current total is " + player.getHandValue());
+
+					// TODO: check if card is ace in which case, make it a 1 if it
+					// prevents a bust.
+					if (isBust(player)) {
+						System.out.println("BUST!");
+						playerTurn = false;
+					} else if (hasBlackjack(player)) {
+						System.out.println("BLACKJACK!");
+						playerTurn = false;
+					}
+					
 					break;
 				case 2:
 					playerTurn = false;
 					break;
 				}
-
-				// TODO: break out hand check into function
-				// TODO: check if card is ace in which case, make it a 1 if it
-				// prevents a bust.
-				if (player.getHandValue() > 21) {
-					playerTurn = false;
-				}
-
 			} else {
 				System.out.println("Invalid operation");
 				scanner.next();
 			}
 		} while (playerTurn);
-
-		System.out.println(player.getName() + "'s current total is "
-				+ player.getHandValue());
-
-		if (player.getHandValue() > 21) {
-			System.out.println("BUST!");
-		} else if (player.getHandValue() == 21) {
-			System.out.println("BLACKJACK!");
-		}
 	}
 
 	private void dealerTurn() {
+		System.out.println("\nDealer's turn...");
+		boolean dealerTurn = true;
+
 		do {
 			if (dealer.getHandValue() < 17) {
 				System.out.println("Dealer draws...");
-				// TODO: dealer should be able to deal 1
 				dealer.getHand().addCard(dealer.dealCard());
-			}
-		} while (dealer.getHandValue() < 17);
 
-		if (dealer.getHandValue() > 21) {
-			System.out.println("BUST!");
-		} else if (dealer.getHandValue() == 21) {
-			System.out.println("BLACKJACK!");
+				System.out.println("dealer's current total is "
+						+ dealer.getHandValue());
+			} else {
+				if (isBust(dealer)) {
+					System.out.println("BUST!");
+				} else if (hasBlackjack(dealer)) {
+					System.out.println("BLACKJACK!");
+				}
+
+				dealerTurn = false;
+			}
+		} while (dealerTurn);
+	}
+
+	private boolean hasBlackjack(final Participant participant) {
+		if (participant.getHandValue() == 21) {
+			return true;
 		}
 
-		System.out
-				.println("dealer's current total is " + dealer.getHandValue());
+		return false;
+	}
+
+	private boolean isBust(final Participant participant) {
+		if (participant.getHandValue() > 21) {
+			return true;
+		}
+
+		return false;
 	}
 
 	private void determineWinner(final Player player) {
