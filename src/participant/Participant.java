@@ -29,4 +29,12 @@ public class Participant {
 	public int getHandValue() {
 		return hand.getHandValue();
 	}
+	
+	public boolean hasBlackjack() {
+		return hand.isBlackjack();
+	}
+
+	public boolean isBust() {
+		return hand.isBust();
+	}
 }

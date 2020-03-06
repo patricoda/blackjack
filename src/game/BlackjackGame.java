@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import config.GameValues;
+
 import card.Card;
 import card.deck.StandardDeckOfCards;
 import card.hand.Hand;
@@ -114,14 +116,25 @@ public class BlackjackGame {
 			playerTurn(player);
 		}
 
-		//change to ensure if all player's are bust, dealer doesn't have turn, auto-wins?
-		dealerTurn();
+		if (!allPlayersBust()) {
+			dealerTurn();
+		}
 
 		for (Player player : players) {
 			determineWinner(player);
 		}
 
 		resetCards();
+	}
+
+	private boolean allPlayersBust() {
+		for (Player player : players) {
+			if (!player.isBust()) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	private void playerTurn(final Player player) {
@@ -132,38 +145,38 @@ public class BlackjackGame {
 		do {
 			System.out.println("current total = " + player.getHandValue());
 
-			if (player.getHandValue() == 21) {
+			if (player.hasBlackjack()) {
+				System.out.println("BLACKJACK!");
 				playerTurn = false;
-			}
-
-			System.out.println("hit (1) or stand (2)?");
-
-			if (scanner.hasNext("1") || scanner.hasNext("2")) {
-				int action = scanner.nextInt();
-				switch (action) {
-				case 1:
-					dealCard(player);
-					System.out.println(player.getName()
-							+ "'s current total is " + player.getHandValue());
-
-					// TODO: check if card is ace in which case, make it a 1 if it
-					// prevents a bust.
-					if (isBust(player)) {
-						System.out.println("BUST!");
-						playerTurn = false;
-					} else if (hasBlackjack(player)) {
-						System.out.println("BLACKJACK!");
-						playerTurn = false;
-					}
-					
-					break;
-				case 2:
-					playerTurn = false;
-					break;
-				}
 			} else {
-				System.out.println("Invalid operation");
-				scanner.next();
+				System.out.println("hit (1) or stand (2)?");
+
+				if (scanner.hasNext("1") || scanner.hasNext("2")) {
+					int action = scanner.nextInt();
+					switch (action) {
+					case 1:
+						dealCard(player);
+						System.out.println(player.getName()
+								+ "'s current total is "
+								+ player.getHandValue());
+
+						if (player.isBust()) {
+							System.out.println("BUST!");
+							playerTurn = false;
+						} else if (player.hasBlackjack()) {
+							System.out.println("BLACKJACK!");
+							playerTurn = false;
+						}
+
+						break;
+					case 2:
+						playerTurn = false;
+						break;
+					}
+				} else {
+					System.out.println("Invalid operation");
+					scanner.next();
+				}
 			}
 		} while (playerTurn);
 	}
@@ -180,9 +193,9 @@ public class BlackjackGame {
 				System.out.println("dealer's current total is "
 						+ dealer.getHandValue());
 			} else {
-				if (isBust(dealer)) {
+				if (dealer.isBust()) {
 					System.out.println("BUST!");
-				} else if (hasBlackjack(dealer)) {
+				} else if (dealer.hasBlackjack()) {
 					System.out.println("BLACKJACK!");
 				}
 
@@ -191,31 +204,21 @@ public class BlackjackGame {
 		} while (dealerTurn);
 	}
 
-	private boolean hasBlackjack(final Participant participant) {
-		if (participant.getHandValue() == 21) {
-			return true;
-		}
-
-		return false;
-	}
-
-	private boolean isBust(final Participant participant) {
-		if (participant.getHandValue() > 21) {
-			return true;
-		}
-
-		return false;
-	}
-
 	private void determineWinner(final Player player) {
-		if (player.getHandValue() > dealer.getHandValue()
-				|| dealer.getHandValue() > 21) {
-			System.out.println(player.getName() + " wins!");
-		} else if (player.getHandValue() == dealer.getHandValue()) {
-			System.out.println(player.getName() + " ties!");
-		} else if (player.getHandValue() < dealer.getHandValue()
-				|| player.getHandValue() > 21) {
+		if (player.isBust()) {
 			System.out.println(player.getName() + " loses!");
+		} else {
+			if (dealer.isBust()) {
+				System.out.println(player.getName() + " wins!");
+			}
+
+			if (player.getHandValue() > dealer.getHandValue()) {
+				System.out.println(player.getName() + " wins!");
+			} else if (player.getHandValue() == dealer.getHandValue()) {
+				System.out.println(player.getName() + " ties!");
+			} else {
+				System.out.println(player.getName() + " loses!");
+			}
 		}
 	}
 
