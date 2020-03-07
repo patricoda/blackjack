@@ -146,7 +146,7 @@ public class BlackjackGame {
 			System.out.println("current total = " + player.getHandValue());
 
 			if (player.hasBlackjack()) {
-				System.out.println("BLACKJACK!");
+				handleBlackjack();
 				playerTurn = false;
 			} else {
 				System.out.println("hit (1) or stand (2)?");
@@ -161,10 +161,10 @@ public class BlackjackGame {
 								+ player.getHandValue());
 
 						if (player.isBust()) {
-							System.out.println("BUST!");
+							handleBust();
 							playerTurn = false;
 						} else if (player.hasBlackjack()) {
-							System.out.println("BLACKJACK!");
+							handleBlackjack();
 							playerTurn = false;
 						}
 
@@ -194,9 +194,9 @@ public class BlackjackGame {
 						+ dealer.getHandValue());
 			} else {
 				if (dealer.isBust()) {
-					System.out.println("BUST!");
+					handleBust();
 				} else if (dealer.hasBlackjack()) {
-					System.out.println("BLACKJACK!");
+					handleBlackjack();
 				}
 
 				dealerTurn = false;
@@ -215,7 +215,7 @@ public class BlackjackGame {
 			if (player.getHandValue() > dealer.getHandValue()) {
 				System.out.println(player.getName() + " wins!");
 			} else if (player.getHandValue() == dealer.getHandValue()) {
-				System.out.println(player.getName() + " ties!");
+				System.out.println(player.getName() + " and the dealer tie!");
 			} else {
 				System.out.println(player.getName() + " loses!");
 			}
@@ -239,9 +239,17 @@ public class BlackjackGame {
 		System.out.println("dealer deals " + participant.getName()
 				+ " a new card");
 
-		System.out.println("new card is " + newCard.getRank() + " of "
-				+ newCard.getSuit() + "s");
+		System.out.println("new card is " + newCard.getRank().name().toLowerCase() + " of "
+				+ newCard.getSuit().name().toLowerCase() + "s");
 
 		participant.getHand().addCard(newCard);
+	}
+	
+	private void handleBust() {
+		System.out.println("BUST!");
+	}
+	
+	private void handleBlackjack() {
+		System.out.println("BLACKJACK!");
 	}
 }
