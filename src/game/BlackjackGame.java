@@ -2,9 +2,8 @@ package game;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
-import config.GameValues;
+import communication.ConsoleCommunication;
 
 import card.Card;
 import card.deck.StandardDeckOfCards;
@@ -17,10 +16,8 @@ import participant.player.Player;
 public class BlackjackGame {
 	private final Dealer dealer;
 	private final List<Player> players = new ArrayList<Player>();
-	private Scanner scanner;
 
 	public BlackjackGame() {
-		scanner = new Scanner(System.in);
 		this.dealer = new Dealer(new StandardDeckOfCards());
 		this.dealer.shuffle();
 	}
@@ -34,31 +31,27 @@ public class BlackjackGame {
 		boolean addingPlayers = true;
 
 		do {
-			System.out.println("Add a player (1), or continue (2)");
-			if (scanner.hasNext("1") || scanner.hasNext("2")) {
-				int action = scanner.nextInt();
-				switch (action) {
-				case 1:
-					System.out.println("Enter player name:");
-					scanner.nextLine();
+			int action = ConsoleCommunication
+					.inputInt("Add a player (1), or continue (2)");
 
-					if (scanner.hasNextLine()) {
-						Player newPlayer = new Player(scanner.nextLine());
-						this.players.add(newPlayer);
-					}
-					break;
-				case 2:
-					if (this.players.isEmpty()) {
-						System.out.println("Please enter at least one player");
-						scanner.nextLine();
-					} else {
-						addingPlayers = false;
-					}
-					break;
+			switch (action) {
+			case 1:
+				final String name = ConsoleCommunication
+						.inputString("Enter player name:");
+				Player newPlayer = new Player(name);
+				this.players.add(newPlayer);
+				break;
+			case 2:
+				if (this.players.isEmpty()) {
+					ConsoleCommunication
+							.output("Please enter at least one player");
+				} else {
+					addingPlayers = false;
 				}
-			} else {
-				System.out.println("Invalid operation");
-				scanner.nextLine();
+				break;
+			default:
+				ConsoleCommunication.output("Invalid operation");
+				break;
 			}
 		} while (addingPlayers);
 	}
@@ -72,10 +65,12 @@ public class BlackjackGame {
 	}
 
 	private void printParticipantValues() {
-		System.out.println("\nDealer has " + dealer.getHandValue());
+		// TODO: players should only be aware of one card the dealer has until
+		// dealer turn.
+		ConsoleCommunication.output("\nDealer has " + dealer.getHandValue());
 
 		for (Player player : this.players) {
-			System.out.println(player.getName() + " has "
+			ConsoleCommunication.output(player.getName() + " has "
 					+ player.getHandValue());
 		}
 	}
@@ -84,28 +79,23 @@ public class BlackjackGame {
 		boolean gameInProgress = true;
 
 		do {
-			System.out.println("new game (1) or exit (2)?");
+			int action = ConsoleCommunication
+					.inputInt("new game (1) or exit (2)?");
 
-			if (scanner.hasNext("1") || scanner.hasNext("2")) {
-				int action = scanner.nextInt();
-
-				switch (action) {
-				case 1:
-					initRound();
-					break;
-				case 2:
-					gameInProgress = false;
-					break;
-				}
-			} else {
-				System.out.println("Invalid operation");
-				scanner.next();
+			switch (action) {
+			case 1:
+				initRound();
+				break;
+			case 2:
+				gameInProgress = false;
+				break;
+			default:
+				ConsoleCommunication.output("Invalid operation");
+				break;
 			}
-
 		} while (gameInProgress);
 
-		System.out.println("Bye :)");
-		scanner.close();
+		ConsoleCommunication.output("Bye :)");
 	}
 
 	private void initRound() {
@@ -138,59 +128,55 @@ public class BlackjackGame {
 	}
 
 	private void playerTurn(final Player player) {
-		// TODO need to create a standard input output class
-		System.out.println("\n" + player.getName() + "'s turn...");
+		ConsoleCommunication.output("\n" + player.getName() + "'s turn...");
 		boolean playerTurn = true;
 
-		do {
-			System.out.println("current total = " + player.getHandValue());
+		ConsoleCommunication.output("current total = " + player.getHandValue());
 
+		do {
 			if (player.hasBlackjack()) {
 				handleBlackjack();
 				playerTurn = false;
 			} else {
-				System.out.println("hit (1) or stand (2)?");
+				int action = ConsoleCommunication
+						.inputInt("hit (1) or stand (2)?");
 
-				if (scanner.hasNext("1") || scanner.hasNext("2")) {
-					int action = scanner.nextInt();
-					switch (action) {
-					case 1:
-						dealCard(player);
-						System.out.println(player.getName()
-								+ "'s current total is "
-								+ player.getHandValue());
+				switch (action) {
+				case 1:
+					dealCard(player);
+					ConsoleCommunication.output(player.getName()
+							+ "'s current total is " + player.getHandValue());
 
-						if (player.isBust()) {
-							handleBust();
-							playerTurn = false;
-						} else if (player.hasBlackjack()) {
-							handleBlackjack();
-							playerTurn = false;
-						}
-
-						break;
-					case 2:
+					if (player.isBust()) {
+						handleBust();
 						playerTurn = false;
-						break;
+					} else if (player.hasBlackjack()) {
+						handleBlackjack();
+						playerTurn = false;
 					}
-				} else {
-					System.out.println("Invalid operation");
-					scanner.next();
+
+					break;
+				case 2:
+					playerTurn = false;
+					break;
+				default:
+					ConsoleCommunication.output("Invalid operation");
+					break;
 				}
 			}
 		} while (playerTurn);
 	}
 
 	private void dealerTurn() {
-		System.out.println("\nDealer's turn...");
+		ConsoleCommunication.output("\nDealer's turn...");
 		boolean dealerTurn = true;
 
 		do {
 			if (dealer.getHandValue() < 17) {
-				System.out.println("Dealer draws...");
+				ConsoleCommunication.output("Dealer draws...");
 				dealer.getHand().addCard(dealer.dealCard());
 
-				System.out.println("dealer's current total is "
+				ConsoleCommunication.output("dealer's current total is "
 						+ dealer.getHandValue());
 			} else {
 				if (dealer.isBust()) {
@@ -206,18 +192,17 @@ public class BlackjackGame {
 
 	private void determineWinner(final Player player) {
 		if (player.isBust()) {
-			System.out.println(player.getName() + " loses!");
+			ConsoleCommunication.output(player.getName() + " loses!");
 		} else {
 			if (dealer.isBust()) {
-				System.out.println(player.getName() + " wins!");
-			}
-
-			if (player.getHandValue() > dealer.getHandValue()) {
-				System.out.println(player.getName() + " wins!");
+				ConsoleCommunication.output(player.getName() + " wins!");
+			} else if (player.getHandValue() > dealer.getHandValue()) {
+				ConsoleCommunication.output(player.getName() + " wins!");
 			} else if (player.getHandValue() == dealer.getHandValue()) {
-				System.out.println(player.getName() + " and the dealer tie!");
+				ConsoleCommunication.output(player.getName()
+						+ " and the dealer tie!");
 			} else {
-				System.out.println(player.getName() + " loses!");
+				ConsoleCommunication.output(player.getName() + " loses!");
 			}
 		}
 	}
@@ -236,20 +221,21 @@ public class BlackjackGame {
 	private void dealCard(Participant participant) {
 		Card newCard = this.dealer.dealCard();
 
-		System.out.println("dealer deals " + participant.getName()
+		ConsoleCommunication.output("dealer deals " + participant.getName()
 				+ " a new card");
 
-		System.out.println("new card is " + newCard.getRank().name().toLowerCase() + " of "
+		ConsoleCommunication.output("new card is "
+				+ newCard.getRank().name().toLowerCase() + " of "
 				+ newCard.getSuit().name().toLowerCase() + "s");
 
 		participant.getHand().addCard(newCard);
 	}
-	
+
 	private void handleBust() {
-		System.out.println("BUST!");
+		ConsoleCommunication.output("BUST!");
 	}
-	
+
 	private void handleBlackjack() {
-		System.out.println("BLACKJACK!");
+		ConsoleCommunication.output("BLACKJACK!");
 	}
 }
