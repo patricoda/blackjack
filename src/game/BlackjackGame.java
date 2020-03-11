@@ -31,20 +31,17 @@ public class BlackjackGame {
 		boolean addingPlayers = true;
 
 		do {
-			int action = ConsoleCommunication
-					.inputInt("Add a player (1), or continue (2)");
+			int action = ConsoleCommunication.inputInt("Add a player (1), or continue (2)");
 
 			switch (action) {
 			case 1:
-				final String name = ConsoleCommunication
-						.inputString("Enter player name:");
+				final String name = ConsoleCommunication.inputString("Enter player name:");
 				Player newPlayer = new Player(name);
 				this.players.add(newPlayer);
 				break;
 			case 2:
 				if (this.players.isEmpty()) {
-					ConsoleCommunication
-							.output("Please enter at least one player");
+					ConsoleCommunication.output("Please enter at least one player");
 				} else {
 					addingPlayers = false;
 				}
@@ -58,29 +55,22 @@ public class BlackjackGame {
 
 	private void dealCards() {
 		this.dealer.setHand(new Hand(this.dealer.dealCards(2)));
-
-		for (Player player : this.players) {
-			player.setHand(new Hand(this.dealer.dealCards(2)));
-		}
+		this.players.stream().forEach(player -> player.setHand(new Hand(this.dealer.dealCards(2))));
 	}
 
 	private void printParticipantValues() {
 		// TODO: players should only be aware of one card the dealer has until
 		// dealer turn.
 		ConsoleCommunication.output("\nDealer has " + dealer.getHandValue());
-
-		for (Player player : this.players) {
-			ConsoleCommunication.output(player.getName() + " has "
-					+ player.getHandValue());
-		}
+		this.players.stream()
+				.forEach(player -> ConsoleCommunication.output(player.getName() + " has " + player.getHandValue()));
 	}
 
 	private void initGameLoop() {
 		boolean gameInProgress = true;
 
 		do {
-			int action = ConsoleCommunication
-					.inputInt("new game (1) or exit (2)?");
+			int action = ConsoleCommunication.inputInt("new game (1) or exit (2)?");
 
 			switch (action) {
 			case 1:
@@ -102,29 +92,19 @@ public class BlackjackGame {
 		dealCards();
 		printParticipantValues();
 
-		for (Player player : this.players) {
-			playerTurn(player);
-		}
+		this.players.stream().forEach(player -> playerTurn(player));
 
 		if (!allPlayersBust()) {
 			dealerTurn();
 		}
 
-		for (Player player : players) {
-			determineWinner(player);
-		}
+		this.players.stream().forEach(player -> determineWinner(player));
 
 		resetCards();
 	}
 
 	private boolean allPlayersBust() {
-		for (Player player : players) {
-			if (!player.isBust()) {
-				return false;
-			}
-		}
-
-		return true;
+		return !this.players.stream().anyMatch(player -> !player.isBust());
 	}
 
 	private void playerTurn(final Player player) {
@@ -138,14 +118,12 @@ public class BlackjackGame {
 				handleBlackjack();
 				playerTurn = false;
 			} else {
-				int action = ConsoleCommunication
-						.inputInt("hit (1) or stand (2)?");
+				int action = ConsoleCommunication.inputInt("hit (1) or stand (2)?");
 
 				switch (action) {
 				case 1:
 					dealCard(player);
-					ConsoleCommunication.output(player.getName()
-							+ "'s current total is " + player.getHandValue());
+					ConsoleCommunication.output(player.getName() + "'s current total is " + player.getHandValue());
 
 					if (player.isBust()) {
 						handleBust();
@@ -176,8 +154,7 @@ public class BlackjackGame {
 				ConsoleCommunication.output("Dealer draws...");
 				dealer.getHand().addCard(dealer.dealCard());
 
-				ConsoleCommunication.output("dealer's current total is "
-						+ dealer.getHandValue());
+				ConsoleCommunication.output("dealer's current total is " + dealer.getHandValue());
 			} else {
 				if (dealer.isBust()) {
 					handleBust();
@@ -199,8 +176,7 @@ public class BlackjackGame {
 			} else if (player.getHandValue() > dealer.getHandValue()) {
 				ConsoleCommunication.output(player.getName() + " wins!");
 			} else if (player.getHandValue() == dealer.getHandValue()) {
-				ConsoleCommunication.output(player.getName()
-						+ " and the dealer tie!");
+				ConsoleCommunication.output(player.getName() + " and the dealer tie!");
 			} else {
 				ConsoleCommunication.output(player.getName() + " loses!");
 			}
@@ -209,10 +185,8 @@ public class BlackjackGame {
 
 	private void resetCards() {
 		this.dealer.getHand().discardAll();
-
-		for (Player player : players) {
-			player.getHand().discardAll();
-		}
+		
+		players.stream().forEach(player -> player.getHand().discardAll());
 
 		this.dealer.setDeckOfCards(new StandardDeckOfCards());
 		this.dealer.shuffle();
@@ -221,11 +195,9 @@ public class BlackjackGame {
 	private void dealCard(Participant participant) {
 		Card newCard = this.dealer.dealCard();
 
-		ConsoleCommunication.output("dealer deals " + participant.getName()
-				+ " a new card");
+		ConsoleCommunication.output("dealer deals " + participant.getName() + " a new card");
 
-		ConsoleCommunication.output("new card is "
-				+ newCard.getRank().name().toLowerCase() + " of "
+		ConsoleCommunication.output("new card is " + newCard.getRank().name().toLowerCase() + " of "
 				+ newCard.getSuit().name().toLowerCase() + "s");
 
 		participant.getHand().addCard(newCard);

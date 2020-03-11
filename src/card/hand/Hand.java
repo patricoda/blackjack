@@ -1,10 +1,11 @@
 package card.hand;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.LongStream;
 
 import config.GameValues;
-
-import participant.Participant;
 
 import card.Card;
 import card.enums.Rank;
@@ -42,38 +43,31 @@ public class Hand {
 	public void discardAll() {
 		cards.clear();
 	}
-	
+
 	public int getHandValue() {
 		return handValue;
 	}
-	
-	private int calculateHandValue() {
-		int total = 0;
 
-		for (Card card : cards) {
-			total = total + card.getRank().getValue();
-		}
-		
-		//if the hand goes over 21, check for aces.
-		if(total > GameValues.BLACKJACK_VALUE) {
-			for(Card card : cards) {
-				if(card.getRank().equals(Rank.ACE)) {
-					//if a card in the hand is an ace, treat ace as a 1.
-					total = (total - Rank.ACE.getValue()) + 1;
-					
-					//if the value is then under 21, break out of the loop, otherwise continue.
-					if((total - Rank.ACE.getValue()) <= GameValues.BLACKJACK_VALUE) {
-						break;
-					} else {
-						continue;
-					}
-				}
+	private int calculateHandValue() {
+		int total = cards.stream().mapToInt(card -> card.getRank().getValue()).sum();
+
+		// if the hand goes over 21, check for aces.
+		if (total > GameValues.BLACKJACK_VALUE) {
+			final long numberOfAces = cards.stream().filter(card -> card.getRank().equals(Rank.ACE)).count();
+			
+			for (int i = 0; i < numberOfAces; i++) {
+				// if a card in the hand is an ace, treat ace as a 1.
+				total = (total - (Rank.ACE.getValue() - 1));
+				
+				//if total is now less than the max value, break out of loop
+				if (total <= GameValues.BLACKJACK_VALUE)
+					break;
 			}
 		}
 
 		return total;
 	}
-	
+
 	public boolean isBlackjack() {
 		if (handValue == GameValues.BLACKJACK_VALUE) {
 			return true;
